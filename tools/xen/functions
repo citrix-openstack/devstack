@@ -10,6 +10,29 @@ function _dir_exists {
     [ -d "$1" ]
 }
 
+function _download {
+    wget -nv $1 -O $2 --no-check-certificate
+}
+
+function _make_temp_file {
+    mktemp
+}
+
+function _make_temp_dir {
+    mktemp -d
+}
+
+function _remove {
+    rm -rf "$1"
+}
+
+function _unzip {
+    local ZIPFILE=$1
+    local DESTDIR=$2
+
+    unzip -q -o $ZIPFILE -d $DESTDIR
+}
+
 function xapi_plugin_location {
     for PLUGIN_DIR in "/etc/xapi.d/plugins/" "/usr/lib/xcp/plugins/"
     do
@@ -28,4 +51,23 @@ function zip_snapshot_location {
 
 function create_directory_for_kernels {
     _recursive_mkdir "/boot/guest"
+}
+
+function extract_remote_zipball {
+    local ZIPBALL_URL=$1
+
+    local LOCAL_ZIPBALL=$(_make_temp_file)
+    local EXTRACTED_FILES=$(_make_temp_dir)
+
+    (
+        _download $ZIPBALL_URL $LOCAL_ZIPBALL
+        _unzip $LOCAL_ZIPBALL $EXTRACTED_FILES
+        _remove $LOCAL_ZIPBALL
+    ) >&2
+
+    echo "$EXTRACTED_FILES"
+}
+
+function find_xapi_plugins_dir {
+    find $1 -path '*/xapi.d/plugins' -type d -print
 }

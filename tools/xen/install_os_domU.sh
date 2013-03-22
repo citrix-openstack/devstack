@@ -53,35 +53,29 @@ xe_min()
 #
 
 cd $THIS_DIR
-if [ -f ./master ]
-then
-    rm -rf ./master
-    rm -rf ./nova
-fi
 
-# get nova
-NOVA_ZIPBALL_URL=${NOVA_ZIPBALL_URL:-$(zip_snapshot_location $NOVA_REPO $NOVA_BRANCH)}
-wget -nv $NOVA_ZIPBALL_URL -O nova-zipball --no-check-certificate
-unzip -q -o nova-zipball  -d ./nova
-
+# Install plugins
 XAPI_PLUGIN_DIR=$(xapi_plugin_location)
-cp -pr ./nova/*/plugins/xenserver/xenapi/etc/xapi.d/plugins/* $XAPI_PLUGIN_DIR
 
-# Install the netwrap xapi plugin to support agent control of dom0 networking
+## Nova
+NOVA_ZIPBALL_URL=${NOVA_ZIPBALL_URL:-$(zip_snapshot_location $NOVA_REPO $NOVA_BRANCH)}
+NOVA_FILES=$(extract_remote_zipball $NOVA_ZIPBALL_URL)
+NOVA_PLUGINS_DIR=$(find_xapi_plugins_dir $NOVA_FILES)
+cp -pr $NOVA_PLUGINS_DIR/* $XAPI_PLUGIN_DIR
+rm -rf $NOVA_FILES
+
+## Install the netwrap xapi plugin to support agent control of dom0 networking
 if [[ "$ENABLED_SERVICES" =~ "q-agt" && "$Q_PLUGIN" = "openvswitch" ]]; then
-    if [ -f ./quantum ]; then
-        rm -rf ./quantum
-    fi
-    # get quantum
     QUANTUM_ZIPBALL_URL=${QUANTUM_ZIPBALL_URL:-$(zip_snapshot_location $QUANTUM_REPO $QUANTUM_BRANCH)}
-    wget -nv $QUANTUM_ZIPBALL_URL -O quantum-zipball --no-check-certificate
-    unzip -q -o quantum-zipball  -d ./quantum
-    cp -pr ./quantum/*/quantum/plugins/openvswitch/agent/xenapi/etc/xapi.d/plugins/* $XAPI_PLUGIN_DIR
+    QUANTUM_FILES=$(extract_remote_zipball $QUANTUM_ZIPBALL_URL)
+    QUANTUM_PLUGINS_DIR=$(find_xapi_plugins_dir $QUANTUM_FILES)
+    cp -pr $QUANTUM_PLUGINS_DIR/* $XAPI_PLUGIN_DIR
+    rm -rf $QUANTUM_FILES
 fi
 
 chmod a+x ${XAPI_PLUGIN_DIR}*
 
-mkdir -p /boot/guest
+create_directory_for_kernels
 
 
 #
