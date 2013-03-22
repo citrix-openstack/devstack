@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Useful functions for XenAPI based installations
+
+function _recursive_mkdir {
+    mkdir -p "$1"
+}
+
+function _dir_exists {
+    [ -d "$1" ]
+}
+
+function xapi_plugin_location {
+    for PLUGIN_DIR in "/etc/xapi.d/plugins/" "/usr/lib/xcp/plugins/"
+    do
+        if _dir_exists $PLUGIN_DIR
+        then
+            echo $PLUGIN_DIR
+            return 0
+        fi
+    done
+    return 1
+}
+
+function zip_snapshot_location {
+    echo $1 | sed "s:\.git$::;s:$:/zipball/$2:g"
+}
+
+function create_directory_for_kernels {
+    _recursive_mkdir "/boot/guest"
+}
