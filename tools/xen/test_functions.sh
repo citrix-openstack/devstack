@@ -51,6 +51,7 @@ function before_each_test {
 # Teardown
 function after_each_test {
     rm -f $LIST_OF_DIRECTORIES
+    rm -f $LIST_OF_ACTIONS
 }
 
 # Helpers
