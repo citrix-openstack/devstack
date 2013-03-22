@@ -46,7 +46,6 @@ xe_min()
   xe "$cmd" --minimal "$@"
 }
 
-
 #
 # Prepare Dom0
 # including installing XenAPI plugins
@@ -55,28 +54,18 @@ xe_min()
 cd $THIS_DIR
 
 # Install plugins
-XAPI_PLUGIN_DIR=$(xapi_plugin_location)
 
-## Nova
+## Nova plugins
 NOVA_ZIPBALL_URL=${NOVA_ZIPBALL_URL:-$(zip_snapshot_location $NOVA_REPO $NOVA_BRANCH)}
-NOVA_FILES=$(extract_remote_zipball $NOVA_ZIPBALL_URL)
-NOVA_PLUGINS_DIR=$(find_xapi_plugins_dir $NOVA_FILES)
-cp -pr $NOVA_PLUGINS_DIR/* $XAPI_PLUGIN_DIR
-rm -rf $NOVA_FILES
+install_xapi_plugins_from_zipball $NOVA_ZIPBALL_URL
 
 ## Install the netwrap xapi plugin to support agent control of dom0 networking
 if [[ "$ENABLED_SERVICES" =~ "q-agt" && "$Q_PLUGIN" = "openvswitch" ]]; then
     QUANTUM_ZIPBALL_URL=${QUANTUM_ZIPBALL_URL:-$(zip_snapshot_location $QUANTUM_REPO $QUANTUM_BRANCH)}
-    QUANTUM_FILES=$(extract_remote_zipball $QUANTUM_ZIPBALL_URL)
-    QUANTUM_PLUGINS_DIR=$(find_xapi_plugins_dir $QUANTUM_FILES)
-    cp -pr $QUANTUM_PLUGINS_DIR/* $XAPI_PLUGIN_DIR
-    rm -rf $QUANTUM_FILES
+    install_xapi_plugins_from_zipball $QUANTUM_ZIPBALL_URL
 fi
 
-chmod a+x ${XAPI_PLUGIN_DIR}*
-
 create_directory_for_kernels
-
 
 #
 # Configure Networking
