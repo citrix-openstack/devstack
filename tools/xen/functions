@@ -6,10 +6,6 @@ function _dir_exists {
     [ -d "$1" ]
 }
 
-function _remove {
-    rm -rf "$1"
-}
-
 function xapi_plugin_location {
     for PLUGIN_DIR in "/etc/xapi.d/plugins/" "/usr/lib/xcp/plugins/"
     do
@@ -39,7 +35,7 @@ function extract_remote_zipball {
     (
         wget -nv $ZIPBALL_URL -O $LOCAL_ZIPBALL --no-check-certificate
         unzip -q -o $LOCAL_ZIPBALL -d $EXTRACTED_FILES
-        _remove $LOCAL_ZIPBALL
+        rm -f $LOCAL_ZIPBALL
     ) >&2
 
     echo "$EXTRACTED_FILES"

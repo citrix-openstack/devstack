@@ -14,10 +14,6 @@ function _dir_exists {
     return 1
 }
 
-function _remove {
-    echo "$1 removed" >> $LIST_OF_ACTIONS
-}
-
 # Setup
 function before_each_test {
     LIST_OF_DIRECTORIES=$(mktemp)
@@ -89,7 +85,7 @@ function test_extract_remote_zipball {
     diff <(cat $LIST_OF_ACTIONS) - << EOF
 wget -nv someurl -O tempfile --no-check-certificate
 unzip -q -o tempfile -d tempdir
-tempfile removed
+rm -f tempfile
 EOF
 
     [ "$RESULT" = "tempdir" ]

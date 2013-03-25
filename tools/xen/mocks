@@ -24,3 +24,7 @@ function unzip {
     echo "Random rubbish from unzip"
     echo "unzip $@" >> $LIST_OF_ACTIONS
 }
+
+function rm {
+    echo "rm $@" >> $LIST_OF_ACTIONS
+}
