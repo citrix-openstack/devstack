@@ -2,18 +2,6 @@
 
 . functions
 
-# Mocking out filesystem functions
-function _dir_exists {
-    for directory in $(cat $LIST_OF_DIRECTORIES)
-    do
-        if [ "$directory" = "$1" ]
-        then
-            return 0
-        fi
-    done
-    return 1
-}
-
 # Setup
 function before_each_test {
     LIST_OF_DIRECTORIES=$(mktemp)
@@ -46,7 +34,7 @@ function assert_previous_command_failed {
 function test_plugin_directory_on_xenserver {
     given_directory_exists "/etc/xapi.d/plugins/"
 
-    PLUGDIR=$(xapi_plugin_location)
+    PLUGDIR=$(. mocks && xapi_plugin_location)
 
     [ "/etc/xapi.d/plugins/" = "$PLUGDIR" ]
 }
@@ -54,7 +42,7 @@ function test_plugin_directory_on_xenserver {
 function test_plugin_directory_on_xcp {
     given_directory_exists "/usr/lib/xcp/plugins/"
 
-    PLUGDIR=$(xapi_plugin_location)
+    PLUGDIR=$(. mocks && xapi_plugin_location)
 
     [ "/usr/lib/xcp/plugins/" = "$PLUGDIR" ]
 }
@@ -62,7 +50,7 @@ function test_plugin_directory_on_xcp {
 function test_no_plugin_directory_found {
     set +e
 
-    SOME=$(xapi_plugin_location)
+    SOME=$(. mocks && xapi_plugin_location)
 
     assert_previous_command_failed
 }

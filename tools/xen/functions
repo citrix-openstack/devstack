@@ -2,14 +2,10 @@
 
 # Useful functions for XenAPI based installations
 
-function _dir_exists {
-    [ -d "$1" ]
-}
-
 function xapi_plugin_location {
     for PLUGIN_DIR in "/etc/xapi.d/plugins/" "/usr/lib/xcp/plugins/"
     do
-        if _dir_exists $PLUGIN_DIR
+        if [ -d $PLUGIN_DIR ]
         then
             echo $PLUGIN_DIR
             return 0
