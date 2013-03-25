@@ -14,18 +14,6 @@ function _dir_exists {
     return 1
 }
 
-function _make_temp_file {
-    echo "tempfile"
-}
-
-function _make_temp_dir {
-    echo "tempdir"
-}
-
-function _download {
-    echo "$1 downloaded to $2" >> $LIST_OF_ACTIONS
-}
-
 function _unzip {
     echo "random rubbish from unzip"
     echo "$1 unzipped to $2" >> $LIST_OF_ACTIONS
@@ -105,10 +93,10 @@ function test_create_directory_for_kernels {
 }
 
 function test_extract_remote_zipball {
-    local RESULT=$(extract_remote_zipball "someurl")
+    local RESULT=$(. mocks && extract_remote_zipball "someurl")
 
     diff <(cat $LIST_OF_ACTIONS) - << EOF
-someurl downloaded to tempfile
+wget -nv someurl -O tempfile --no-check-certificate
 tempfile unzipped to tempdir
 tempfile removed
 EOF

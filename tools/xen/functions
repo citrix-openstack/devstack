@@ -10,18 +10,6 @@ function _dir_exists {
     [ -d "$1" ]
 }
 
-function _download {
-    wget -nv $1 -O $2 --no-check-certificate
-}
-
-function _make_temp_file {
-    mktemp
-}
-
-function _make_temp_dir {
-    mktemp -d
-}
-
 function _remove {
     rm -rf "$1"
 }
@@ -56,11 +44,11 @@ function create_directory_for_kernels {
 function extract_remote_zipball {
     local ZIPBALL_URL=$1
 
-    local LOCAL_ZIPBALL=$(_make_temp_file)
-    local EXTRACTED_FILES=$(_make_temp_dir)
+    local LOCAL_ZIPBALL=$(mktemp)
+    local EXTRACTED_FILES=$(mktemp -d)
 
     (
-        _download $ZIPBALL_URL $LOCAL_ZIPBALL
+        wget -nv $ZIPBALL_URL -O $LOCAL_ZIPBALL --no-check-certificate
         _unzip $LOCAL_ZIPBALL $EXTRACTED_FILES
         _remove $LOCAL_ZIPBALL
     ) >&2

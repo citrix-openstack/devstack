@@ -1,0 +1,14 @@
+#!/bin/bash
+
+function mktemp {
+    if [ "${1:-}" = "-d" ];
+    then
+        echo "tempdir"
+    else
+        echo "tempfile"
+    fi
+}
+
+function wget {
+    echo "wget $@" >> $LIST_OF_ACTIONS
+}
