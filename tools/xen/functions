@@ -2,10 +2,6 @@
 
 # Useful functions for XenAPI based installations
 
-function _recursive_mkdir {
-    mkdir -p "$1"
-}
-
 function _dir_exists {
     [ -d "$1" ]
 }
@@ -38,7 +34,7 @@ function zip_snapshot_location {
 }
 
 function create_directory_for_kernels {
-    _recursive_mkdir "/boot/guest"
+    mkdir -p "/boot/guest"
 }
 
 function extract_remote_zipball {

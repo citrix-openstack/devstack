@@ -12,3 +12,10 @@ function mktemp {
 function wget {
     echo "wget $@" >> $LIST_OF_ACTIONS
 }
+
+function mkdir {
+    if [ "${1:-}" = "-p" ];
+    then
+        echo "$2" >> $LIST_OF_DIRECTORIES
+    fi
+}

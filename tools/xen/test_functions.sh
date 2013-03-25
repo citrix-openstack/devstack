@@ -23,10 +23,6 @@ function _remove {
     echo "$1 removed" >> $LIST_OF_ACTIONS
 }
 
-function _recursive_mkdir {
-    echo "$1" >> $LIST_OF_DIRECTORIES
-}
-
 # Setup
 function before_each_test {
     LIST_OF_DIRECTORIES=$(mktemp)
@@ -87,7 +83,7 @@ function test_zip_snapshot_location {
 }
 
 function test_create_directory_for_kernels {
-    create_directory_for_kernels
+    (. mocks && create_directory_for_kernels)
 
     assert_directory_exists "/boot/guest"
 }
