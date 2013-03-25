@@ -10,13 +10,6 @@ function _remove {
     rm -rf "$1"
 }
 
-function _unzip {
-    local ZIPFILE=$1
-    local DESTDIR=$2
-
-    unzip -q -o $ZIPFILE -d $DESTDIR
-}
-
 function xapi_plugin_location {
     for PLUGIN_DIR in "/etc/xapi.d/plugins/" "/usr/lib/xcp/plugins/"
     do
@@ -45,7 +38,7 @@ function extract_remote_zipball {
 
     (
         wget -nv $ZIPBALL_URL -O $LOCAL_ZIPBALL --no-check-certificate
-        _unzip $LOCAL_ZIPBALL $EXTRACTED_FILES
+        unzip -q -o $LOCAL_ZIPBALL -d $EXTRACTED_FILES
         _remove $LOCAL_ZIPBALL
     ) >&2
 

@@ -19,3 +19,8 @@ function mkdir {
         echo "$2" >> $LIST_OF_DIRECTORIES
     fi
 }
+
+function unzip {
+    echo "Random rubbish from unzip"
+    echo "unzip $@" >> $LIST_OF_ACTIONS
+}

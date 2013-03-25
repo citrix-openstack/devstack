@@ -14,11 +14,6 @@ function _dir_exists {
     return 1
 }
 
-function _unzip {
-    echo "random rubbish from unzip"
-    echo "$1 unzipped to $2" >> $LIST_OF_ACTIONS
-}
-
 function _remove {
     echo "$1 removed" >> $LIST_OF_ACTIONS
 }
@@ -93,7 +88,7 @@ function test_extract_remote_zipball {
 
     diff <(cat $LIST_OF_ACTIONS) - << EOF
 wget -nv someurl -O tempfile --no-check-certificate
-tempfile unzipped to tempdir
+unzip -q -o tempfile -d tempdir
 tempfile removed
 EOF
 
