@@ -15,10 +15,7 @@
 # The resultant image is started by install_os_domU.sh,
 # and once the VM has shutdown, build_xva.sh is run
 
-# Exit on errors
-set -o errexit
-# Echo commands
-set -o xtrace
+set -exu
 
 # This directory
 TOP_DIR=$(cd $(dirname "$0") && pwd)

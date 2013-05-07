@@ -7,10 +7,7 @@
 # Based on a script by: David Markey <david.markey@citrix.com>
 #
 
-# Exit on errors
-set -o errexit
-# Echo commands
-set -o xtrace
+set -exu
 
 # This directory
 BASE_DIR=$(cd $(dirname "$0") && pwd)
@@ -54,11 +51,11 @@ disk_size=$(($OSDOMU_VDI_GB * 1024 * 1024 * 1024))
 pvargs="-- quiet console=hvc0 partman/default_filesystem=ext3 \
 console-setup/ask_detect=false locale=${UBUNTU_INST_LOCALE} \
 keyboard-configuration/layoutcode=${UBUNTU_INST_KEYBOARD} \
-netcfg/choose_interface=${HOST_IP_IFACE} \
+netcfg/choose_interface=${UBUNTU_INST_IFACE} \
 netcfg/get_hostname=os netcfg/get_domain=os auto \
 url=${preseed_url}"
 
-if [ "$NETINSTALLIP" != "dhcp" ]; then
+if [ "$UBUNTU_INST_IP" != "dhcp" ]; then
     netcfgargs="netcfg/disable_autoconfig=true \
 netcfg/get_nameservers=${UBUNTU_INST_NAMESERVERS} \
 netcfg/get_ipaddress=${UBUNTU_INST_IP} \
