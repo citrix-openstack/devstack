@@ -22,7 +22,6 @@ GUEST_PASSWORD=${GUEST_PASSWORD:-secrete}
 # Host Interface, i.e. the interface on the nova vm you want to expose the
 # services on. Usually eth2 (management network) or eth3 (public network) and
 # not eth0 (private network with XenServer host) or eth1 (VM traffic network)
-# This is also used as the interface for the Ubuntu install
 HOST_IP_IFACE=${HOST_IP_IFACE:-eth3}
 
 #
