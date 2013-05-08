@@ -67,98 +67,12 @@ create_directory_for_kernels
 #
 # Configure Networking
 #
-
-# Helper to create networks
-# Uses echo trickery to return network uuid
-function create_network() {
-    br=$1
-    dev=$2
-    vlan=$3
-    netname=$4
-    if [ -z $br ]
-    then
-        pif=$(xe_min pif-list device=$dev VLAN=$vlan)
-        if [ -z $pif ]
-        then
-            net=$(xe network-create name-label=$netname)
-        else
-            net=$(xe_min network-list  PIF-uuids=$pif)
-        fi
-        echo $net
-        return 0
-    fi
-    if [ ! $(xe_min network-list  params=bridge | grep -w --only-matching $br) ]
-    then
-        echo "Specified bridge $br does not exist"
-        echo "If you wish to use defaults, please keep the bridge name empty"
-        exit 1
-    else
-        net=$(xe_min network-list  bridge=$br)
-        echo $net
-    fi
-}
-
-function create_new_network() {
-    local name_label
-    name_label=$1
-
-    xe network-create name-label="$name_label"
-}
-
-function assert_no_multiple_networks_with_name() {
-    local name_label
-    name_label=$1
-
-    # A comma indicates multiple matches
-    ! xe network-list name-label="$name_label" --minimal | grep -q ","
-}
-
-function network_exists() {
-    local name_label
-    name_label=$1
-
-    ! [ -z $(xe network-list name-label="$name_label" --minimal) ]
-}
-
-function setup_network() {
-    local name_label
-    name_label=$1
-
-    if network_exists "$name_label"; then
-        assert_no_multiple_networks_with_name "$name_label"
-    else
-        create_new_network "$name_label"
-    fi
-}
-function errorcheck() {
-    rc=$?
-    if [ $rc -ne 0 ]
-    then
-        exit $rc
-    fi
-}
-
-
-# Create host, vm, mgmt, pub networks on XenServer
-VM_NET=$(create_network "$VM_BR" "$VM_DEV" "$VM_VLAN" "vmbr")
-errorcheck
-MGT_NET=$(create_network "$MGT_BR" "$MGT_DEV" "$MGT_VLAN" "mgtbr")
-errorcheck
+setup_network "$VM_NET_NAME"
+setup_network "$MGT_NET_NAME"
 setup_network "$PUB_NET_NAME"
 
-# Get final bridge names
-if [ -z $VM_BR ]; then
-    VM_BR=$(xe_min network-list  uuid=$VM_NET params=bridge)
-fi
-if [ -z $MGT_BR ]; then
-    MGT_BR=$(xe_min network-list  uuid=$MGT_NET params=bridge)
-fi
-if [ -z $PUB_BR ]; then
-    PUB_BR=$(xe_min network-list  uuid=$PUB_NET params=bridge)
-fi
-
-# dom0 ip, XenAPI is assumed to be listening
-HOST_IP=${HOST_IP:-`ifconfig xenbr0 | grep "inet addr" | cut -d ":" -f2 | sed "s/ .*//"`}
+assert_xenapi_is_listening_on "$MGT_NET_NAME"
+HOST_IP=$(xenapi_ip_on "$MGT_NET_NAME")
 
 # Set up ip forwarding, but skip on xcp-xapi
 if [ -a /etc/sysconfig/network ]; then
@@ -263,7 +177,8 @@ if [ -z "$templateuuid" ]; then
 
     # create a new VM with the given template
     # creating the correct VIFs and metadata
-    $THIS_DIR/scripts/install-os-vpx.sh -t "$UBUNTU_INST_TEMPLATE_NAME" -v $VM_BR -m $MGT_BR -p $PUB_NET_NAME -l $GUEST_NAME -r $OSDOMU_MEM_MB -k "flat_network_bridge=${VM_BR}"
+    VM_BR=$(bridge_for "$VM_NET_NAME")
+    $THIS_DIR/scripts/install-os-vpx.sh -t "$UBUNTU_INST_TEMPLATE_NAME" -v $VM_NET_NAME -m $MGT_NET_NAME -p $PUB_NET_NAME -l $GUEST_NAME -r $OSDOMU_MEM_MB -k "flat_network_bridge=${VM_BR}"
 
     # wait for install to finish
     wait_for_VM_to_halt

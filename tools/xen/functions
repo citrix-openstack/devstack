@@ -65,3 +65,54 @@ function get_local_sr {
 function get_local_sr_path {
     echo "/var/run/sr-mount/$(get_local_sr)"
 }
+
+function create_new_network() {
+    local name_label
+    name_label=$1
+
+    xe network-create name-label="$name_label"
+}
+
+function assert_no_multiple_networks_with_name() {
+    local name_label
+    name_label=$1
+
+    # A comma indicates multiple matches
+    ! xe network-list name-label="$name_label" --minimal | grep -q ","
+}
+
+function network_exists() {
+    local name_label
+    name_label=$1
+
+    ! [ -z $(xe network-list name-label="$name_label" --minimal) ]
+}
+
+function setup_network() {
+    local name_label
+    name_label=$1
+
+    if network_exists "$name_label"; then
+        assert_no_multiple_networks_with_name "$name_label"
+    else
+        create_new_network "$name_label"
+    fi
+}
+
+function bridge_for() {
+    local name_label
+    name_label=$1
+
+    xe network-list name-label="$name_label" params=bridge --minimal
+}
+
+function xenapi_ip_on() {
+    local name_label
+    name_label=$1
+
+    ifconfig $(bridge_for "$name_label") | grep "inet addr" | cut -d ":" -f2 | sed "s/ .*//"
+}
+
+function assert_xenapi_is_listening_on() {
+    ! [ -z $(xenapi_ip_on "$name_label") ]
+}
