@@ -98,6 +98,38 @@ function create_network() {
     fi
 }
 
+function create_new_network() {
+    local name_label
+    name_label=$1
+
+    xe network-create name-label="$name_label"
+}
+
+function assert_no_multiple_networks_with_name() {
+    local name_label
+    name_label=$1
+
+    # A comma indicates multiple matches
+    ! xe network-list name-label="$name_label" --minimal | grep -q ","
+}
+
+function network_exists() {
+    local name_label
+    name_label=$1
+
+    ! [ -z $(xe network-list name-label="$name_label" --minimal) ]
+}
+
+function setup_network() {
+    local name_label
+    name_label=$1
+
+    if network_exists "$name_label"; then
+        assert_no_multiple_networks_with_name "$name_label"
+    else
+        create_new_network "$name_label"
+    fi
+}
 function errorcheck() {
     rc=$?
     if [ $rc -ne 0 ]
@@ -106,44 +138,13 @@ function errorcheck() {
     fi
 }
 
+
 # Create host, vm, mgmt, pub networks on XenServer
 VM_NET=$(create_network "$VM_BR" "$VM_DEV" "$VM_VLAN" "vmbr")
 errorcheck
 MGT_NET=$(create_network "$MGT_BR" "$MGT_DEV" "$MGT_VLAN" "mgtbr")
 errorcheck
-PUB_NET=$(create_network "$PUB_BR" "$PUB_DEV" "$PUB_VLAN" "pubbr")
-errorcheck
-
-# Helper to create vlans
-function create_vlan() {
-    dev=$1
-    vlan=$2
-    net=$3
-    # VLAN -1 refers to no VLAN (physical network)
-    if [ $vlan -eq -1 ]
-    then
-        return
-    fi
-    if [ -z $(xe_min vlan-list  tag=$vlan) ]
-    then
-        pif=$(xe_min pif-list  network-uuid=$net)
-        # We created a brand new network this time
-        if [ -z $pif ]
-        then
-            pif=$(xe_min pif-list  device=$dev VLAN=-1)
-            xe vlan-create pif-uuid=$pif vlan=$vlan network-uuid=$net
-        else
-            echo "VLAN does not exist but PIF attached to this network"
-            echo "How did we reach here?"
-            exit 1
-        fi
-    fi
-}
-
-# Create vlans for vm and management
-create_vlan $PUB_DEV $PUB_VLAN $PUB_NET
-create_vlan $VM_DEV $VM_VLAN $VM_NET
-create_vlan $MGT_DEV $MGT_VLAN $MGT_NET
+setup_network "$PUB_NET_NAME"
 
 # Get final bridge names
 if [ -z $VM_BR ]; then
@@ -262,7 +263,7 @@ if [ -z "$templateuuid" ]; then
 
     # create a new VM with the given template
     # creating the correct VIFs and metadata
-    $THIS_DIR/scripts/install-os-vpx.sh -t "$UBUNTU_INST_TEMPLATE_NAME" -v $VM_BR -m $MGT_BR -p $PUB_BR -l $GUEST_NAME -r $OSDOMU_MEM_MB -k "flat_network_bridge=${VM_BR}"
+    $THIS_DIR/scripts/install-os-vpx.sh -t "$UBUNTU_INST_TEMPLATE_NAME" -v $VM_BR -m $MGT_BR -p $PUB_NET_NAME -l $GUEST_NAME -r $OSDOMU_MEM_MB -k "flat_network_bridge=${VM_BR}"
 
     # wait for install to finish
     wait_for_VM_to_halt
