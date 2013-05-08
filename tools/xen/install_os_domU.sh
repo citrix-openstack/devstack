@@ -178,7 +178,14 @@ if [ -z "$templateuuid" ]; then
     # create a new VM with the given template
     # creating the correct VIFs and metadata
     VM_BR=$(bridge_for "$VM_NET_NAME")
-    $THIS_DIR/scripts/install-os-vpx.sh -t "$UBUNTU_INST_TEMPLATE_NAME" -v $VM_NET_NAME -m $MGT_NET_NAME -p $PUB_NET_NAME -l $GUEST_NAME -r $OSDOMU_MEM_MB -k "flat_network_bridge=${VM_BR}"
+    $THIS_DIR/scripts/install-os-vpx.sh \
+        -t "$UBUNTU_INST_TEMPLATE_NAME" \
+        -v "$VM_NET_NAME" \
+        -m "$MGT_NET_NAME" \
+        -p "$PUB_NET_NAME" \
+        -l "$GUEST_NAME" \
+        -r "$OSDOMU_MEM_MB" \
+        -k "flat_network_bridge=${VM_BR}"
 
     # wait for install to finish
     wait_for_VM_to_halt

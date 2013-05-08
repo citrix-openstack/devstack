@@ -114,5 +114,8 @@ function xenapi_ip_on() {
 }
 
 function assert_xenapi_is_listening_on() {
+    local name_label
+    name_label=$1
+
     ! [ -z $(xenapi_ip_on "$name_label") ]
 }
