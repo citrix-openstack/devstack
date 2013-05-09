@@ -68,7 +68,7 @@ UBUNTU_INST_REPOSITORY="http://archive.ubuntu.net/ubuntu"
 UBUNTU_INST_LOCALE="en_US"
 UBUNTU_INST_KEYBOARD="us"
 # network configuration for ubuntu netinstall
-UBUNTU_INST_IFACE="eth2"
+UBUNTU_INST_IFACE="eth3"
 UBUNTU_INST_IP="dhcp"
 UBUNTU_INST_NAMESERVERS=""
 UBUNTU_INST_NETMASK=""

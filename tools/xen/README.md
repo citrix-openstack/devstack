@@ -69,7 +69,7 @@ Of course, use real passwords if this machine is exposed.
     # UBUNTU_INST_RELEASE=precise
 
     # First time Ubuntu network install params
-    # UBUNTU_INST_IFACE="eth2"
+    # UBUNTU_INST_IFACE="eth3"
     # UBUNTU_INST_IP="dhcp"
     EOF
 
