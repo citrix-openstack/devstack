@@ -119,3 +119,10 @@ function assert_xenapi_is_listening_on() {
 
     ! [ -z $(xenapi_ip_on "$name_label") ]
 }
+
+function assert_parameter_is_not_specified() {
+    local parameter_name
+    parameter_name=$1
+
+    ! compgen -v | grep "$parameter_name"
+}

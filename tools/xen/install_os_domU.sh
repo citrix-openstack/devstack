@@ -71,6 +71,8 @@ setup_network "$VM_NET_NAME"
 setup_network "$MGT_NET_NAME"
 setup_network "$PUB_NET_NAME"
 
+assert_parameter_is_not_specified "FLAT_NETWORK_BRIDGE"
+
 assert_xenapi_is_listening_on "$MGT_NET_NAME"
 HOST_IP=$(xenapi_ip_on "$MGT_NET_NAME")
 
@@ -178,7 +180,7 @@ if [ -z "$templateuuid" ]; then
 
     # create a new VM with the given template
     # creating the correct VIFs and metadata
-    VM_BR=$(bridge_for "$VM_NET_NAME")
+    FLAT_NETWORK_BRIDGE=$(bridge_for "$VM_NET_NAME")
     $THIS_DIR/scripts/install-os-vpx.sh \
         -t "$UBUNTU_INST_TEMPLATE_NAME" \
         -v "$VM_NET_NAME" \
@@ -186,7 +188,7 @@ if [ -z "$templateuuid" ]; then
         -p "$PUB_NET_NAME" \
         -l "$GUEST_NAME" \
         -r "$OSDOMU_MEM_MB" \
-        -k "flat_network_bridge=${VM_BR}"
+        -k "flat_network_bridge=${FLAT_NETWORK_BRIDGE}"
 
     # wait for install to finish
     wait_for_VM_to_halt

@@ -71,6 +71,10 @@ Of course, use real passwords if this machine is exposed.
     # First time Ubuntu network install params
     # UBUNTU_INST_IFACE="eth3"
     # UBUNTU_INST_IP="dhcp"
+
+    # NOTE: Specifying FLAT_NETWORK_BRIDGE is an error, as it will be guessed
+    # by the script from the network mapping, and passed to the OpenStack VM
+    # as a kernel parameter
     EOF
 
 ## Step 4: Run `./install_os_domU.sh` from the `tools/xen` directory
