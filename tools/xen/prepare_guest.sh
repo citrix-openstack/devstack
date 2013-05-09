@@ -10,7 +10,9 @@
 # creating the user called "stack",
 # and shuts down the VM to signal the script has completed
 
-set -exu
+set -o errexit
+set -o nounset
+set -o xtrace
 
 # Configurable nuggets
 GUEST_PASSWORD="$1"

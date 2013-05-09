@@ -7,7 +7,9 @@
 # Based on a script by: David Markey <david.markey@citrix.com>
 #
 
-set -exu
+set -o errexit
+set -o nounset
+set -o xtrace
 
 # This directory
 BASE_DIR=$(cd $(dirname "$0") && pwd)

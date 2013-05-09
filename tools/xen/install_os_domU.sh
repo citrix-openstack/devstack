@@ -6,7 +6,9 @@
 #
 # For more details see: README.md
 
-set -exu
+set -o errexit
+set -o nounset
+set -o xtrace
 
 # Abort if localrc is not set
 if [ ! -e ../../localrc ]; then
