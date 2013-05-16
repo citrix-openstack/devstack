@@ -135,12 +135,13 @@ if [ "$COPYENV" = "1" ]; then
     cp_it ~/.bashrc $STAGING_DIR/opt/stack/.bashrc
 fi
 
+set -o
+
 # Configure run.sh
 cat <<EOF >$STAGING_DIR/opt/stack/run.sh
 #!/bin/bash
 cd /opt/stack/devstack
 killall screen
-STACKSH_PARAMS=${STACKSH_PARAMS:-}
 VIRT_DRIVER=xenserver FORCE=yes MULTI_HOST=$MULTI_HOST HOST_IP_IFACE=$HOST_IP_IFACE $STACKSH_PARAMS ./stack.sh
 EOF
 chmod 755 $STAGING_DIR/opt/stack/run.sh
