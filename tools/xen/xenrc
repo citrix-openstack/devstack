@@ -76,4 +76,7 @@ UBUNTU_INST_NAMESERVERS=""
 UBUNTU_INST_NETMASK=""
 UBUNTU_INST_GATEWAY=""
 
+# stackrc may not be clean in terms of accessing undefined variables
+set +o nounset
 source ../../stackrc
+set -o nounset
