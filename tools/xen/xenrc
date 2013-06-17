@@ -51,11 +51,6 @@ VM_NETMASK=${VM_NETMASK:-255.255.255.0}
 PUB_IP=${PUB_IP:-192.168.1.55}
 PUB_NETMASK=${PUB_NETMASK:-255.255.255.0}
 
-# Decide if you should enable eth0,
-# the guest installer network
-# You need to disable this on xcp-xapi on Ubuntu 12.04
-ENABLE_GI=true
-
 # Ubuntu install settings
 UBUNTU_INST_RELEASE="oneiric"
 UBUNTU_INST_TEMPLATE_NAME="Ubuntu 11.10 (64-bit) for DevStack"
