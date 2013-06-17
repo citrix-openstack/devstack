@@ -239,6 +239,17 @@ else
 fi
 
 
+
+## Setup network cards
+# Wipe out all
+destroy_all_vifs_of "$GUEST_NAME"
+# Tenant network
+add_interface "$GUEST_NAME" "$VM_BRIDGE_OR_NET_NAME" "1"
+# Management network
+add_interface "$GUEST_NAME" "$MGT_BRIDGE_OR_NET_NAME" "2"
+# Public network
+add_interface "$GUEST_NAME" "$PUB_BRIDGE_OR_NET_NAME" "3"
+
 #
 # Inject DevStack inside VM disk
 #
