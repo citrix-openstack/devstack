@@ -257,7 +257,7 @@ $THIS_DIR/build_xva.sh "$GUEST_NAME"
 # is created by XenServer). This is required for Quantum. Also pass that as a
 # kernel parameter for DomU
 if is_service_enabled quantum; then
-    add_interface "$GUEST_NAME" "$XEN_INT_BRIDGE_OR_NET_NAME" "3"
+    add_interface "$GUEST_NAME" "$XEN_INT_BRIDGE_OR_NET_NAME" $XEN_INT_DEV_NR
 
     XEN_INTEGRATION_BRIDGE=$(bridge_for "$XEN_INT_BRIDGE_OR_NET_NAME")
     append_kernel_cmdline \
