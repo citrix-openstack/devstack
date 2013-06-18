@@ -34,6 +34,13 @@ The `install_os_domU.sh` script will:
      `eth0`.
    - eth3 - Public interface, connected to `PUB_BRIDGE_OR_NET_NAME` defaults to
    `"OpenStack Public Network"`.
+ - After the Ubuntu install process finished, the network configuration is
+ modified to:
+   - eth0 - Management interface, connected to `MGT_BRIDGE_OR_NET_NAME`
+   - eth1 - VM interface, connected to `VM_BRIDGE_OR_NET_NAME`
+   - eth2 - Public interface, connected to `PUB_BRIDGE_OR_NET_NAME`
+   - (eth3) - Optional network interface if quantum is used, to enforce xapi to
+   create the underlying bridge.
  - Start devstack inside the created OpenStack VM
 
 ## Step 1: Install Xenserver
