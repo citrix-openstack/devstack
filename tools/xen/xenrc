@@ -55,7 +55,8 @@ VM_IP=${VM_IP:-10.255.255.255}
 VM_NETMASK=${VM_NETMASK:-255.255.255.0}
 
 # Public network
-PUB_IP=${PUB_IP:-192.168.1.55}
+# Aligned with stack.sh - see FLOATING_RANGE
+PUB_IP=${PUB_IP:-172.24.4.10}
 PUB_NETMASK=${PUB_NETMASK:-255.255.255.0}
 
 # Ubuntu install settings
