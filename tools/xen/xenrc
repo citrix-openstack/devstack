@@ -73,8 +73,8 @@ UBUNTU_INST_GATEWAY=""
 
 # Extracted variables for OpenStack VM network device numbers.
 # Make sure, they form a continous sequence starting from 0
-VM_DEV_NR=0
-MGT_DEV_NR=1
+MGT_DEV_NR=0
+VM_DEV_NR=1
 PUB_DEV_NR=2
 XEN_INT_DEV_NR=3
 
