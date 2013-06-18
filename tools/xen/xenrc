@@ -40,15 +40,15 @@ XEN_INT_DEV_NR=3
 # Host Interface, i.e. the interface on the nova vm you want to expose the
 # services on. Usually the device connected to the management network or the 
 # one connected to the public network is used.
-HOST_IP_IFACE=${HOST_IP_IFACE:-"eth${PUB_DEV_NR}"}
+HOST_IP_IFACE=${HOST_IP_IFACE:-"eth${MGT_DEV_NR}"}
 
 #
 # Our nova host's network info
 #
 
 # Management network
-MGT_IP=${MGT_IP:-172.16.100.55}
-MGT_NETMASK=${MGT_NETMASK:-255.255.255.0}
+MGT_IP=${MGT_IP:-dhcp}
+MGT_NETMASK=${MGT_NETMASK:-ignored}
 
 # VM Network
 VM_IP=${VM_IP:-10.255.255.255}
