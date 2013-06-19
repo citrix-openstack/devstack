@@ -112,11 +112,6 @@ Of course, use real passwords if this machine is exposed.
     # Settings for netinstalling Ubuntu
     UBUNTU_INST_RELEASE=precise
 
-    # First time Ubuntu network install params, use the DHCP server on the
-    # management network
-    UBUNTU_INST_IFACE="eth2"
-    UBUNTU_INST_IP="dhcp"
-
     # NOTE: the value of FLAT_NETWORK_BRIDGE will automatically be determined
     # by install_os_domU.sh script.
 
