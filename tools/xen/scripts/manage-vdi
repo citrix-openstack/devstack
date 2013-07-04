@@ -36,7 +36,7 @@ function get_mount_device() {
     DEBIAN_FRONTEND=noninteractive \
         apt-get --option "Dpkg::Options::=--force-confold" --assume-yes \
         install kpartx &> /dev/null || true
-    mapping=$(kpartx -av "/dev/$dev" | sed -ne 's,^add map \([a-z0-9\-]*\).*$,\1,p' | sed -ne "s,^\(.*${part}\)\$,\1,p")
+    mapping=$(kpartx -sav "/dev/$dev" | sed -ne 's,^add map \([a-z0-9\-]*\).*$,\1,p' | sed -ne "s,^\(.*${part}\)\$,\1,p")
     if [ -z "$mapping" ]; then
        echo "Failed to find mapping"
        exit -1
