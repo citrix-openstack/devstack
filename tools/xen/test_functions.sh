@@ -161,7 +161,16 @@ function test_create_directory_for_images_existing_dir {
 EOF
 }
 
-function test_extract_remote_zipball {
+function test_extract_remote_zipball_xtract_fail {
+    set +e
+    (
+        . mocks && extract_remote_zipball "please_fail"
+    )
+
+    assert_previous_command_failed
+}
+
+function test_extract_remote_zipball_xtract {
     local RESULT=$(. mocks && extract_remote_zipball "someurl")
 
     diff <(cat $LIST_OF_ACTIONS) - << EOF

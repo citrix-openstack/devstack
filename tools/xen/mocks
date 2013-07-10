@@ -34,6 +34,9 @@ function mktemp {
 }
 
 function wget {
+    if echo "$@" | grep -q please_fail; then
+        exit 1
+    fi
     echo "wget $@" >> $LIST_OF_ACTIONS
 }
 
