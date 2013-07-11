@@ -10,6 +10,9 @@ set -o errexit
 set -o nounset
 set -o xtrace
 
+# This directory
+THIS_DIR=$(cd $(dirname "$0") && pwd)
+
 # xapi functions
 . $THIS_DIR/functions
 
@@ -21,9 +24,6 @@ See the xen README for required passwords.
 EOF
     exit 1
 fi
-
-# This directory
-THIS_DIR=$(cd $(dirname "$0") && pwd)
 
 # Source lower level functions
 . $THIS_DIR/../../functions
