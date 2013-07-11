@@ -8,8 +8,8 @@
 # Name of this guest
 GUEST_NAME=${GUEST_NAME:-DevStackOSDomU}
 
-# Template cleanup
-CLEAN_TEMPLATES=${CLEAN_TEMPLATES:-false}
+# Force reinstall of OpenStack VM set it to "true" to reinstall OpenStack VM
+OSDOMU_REINSTALL=${OSDOMU_REINSTALL:-false}
 
 # Size of image
 VDI_MB=${VDI_MB:-5000}

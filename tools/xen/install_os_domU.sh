@@ -39,29 +39,29 @@ THIS_DIR=$(cd $(dirname "$0") && pwd)
 source $THIS_DIR/xenrc
 
 #
-# Shutdown previous runs
+# Uninstall Virtual Machines
 #
-
-CLEAN_TEMPLATES=${CLEAN_TEMPLATES:-false}
-# Shutdown all domU's that created previously
-clean_templates_arg=""
-if $CLEAN_TEMPLATES; then
-    clean_templates_arg="--remove-templates"
-fi
-./scripts/uninstall-os-vpx.sh $clean_templates_arg
-
-# Destroy any instances that were launched
-for uuid in `xe vm-list | grep -1 instance | grep uuid | sed "s/.*\: //g"`; do
-    echo "Shutting down nova instance $uuid"
-    xe vm-unpause uuid=$uuid || true
-    xe vm-shutdown uuid=$uuid || true
-    xe vm-destroy uuid=$uuid
+IFS=,
+for vm_name_label in $(xe vm-list params=name-label --minimal); do
+    # Wipe previous OpenStack VMs
+    if [[ "$vm_name_label" == "$GUEST_NAME" ]]; then
+        if [[ "$OSDOMU_REINSTALL" == "true" ]]; then
+            uninstall_vm "$vm_name_label"
+        fi
+    # Destroy any instances that were launched
+    elif [[ "$vm_name_label" =~ "instance" ]]; then
+        uninstall_vm "$vm_name_label"
+    fi
 done
+unset IFS
 
 # Destroy orphaned vdis
 for uuid in `xe vdi-list | grep -1 Glance | grep uuid | sed "s/.*\: //g"`; do
     xe vdi-destroy uuid=$uuid
 done
+
+echo "END"
+exit 0
 
 #
 # Prepare Dom0
