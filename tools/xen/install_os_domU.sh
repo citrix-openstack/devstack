@@ -60,6 +60,72 @@ for uuid in `xe vdi-list | grep -1 Glance | grep uuid | sed "s/.*\: //g"`; do
     xe vdi-destroy uuid=$uuid
 done
 
+STEP_1_BEFORE_NETBOOT="$GUEST_NAME - STEP 1 - BEFORE_NETBOOT"
+
+if snapshot_missing "$STEP_1_BEFORE_NETBOOT"; then
+    HOST_IP=$(xenapi_ip_on "$MGT_BRIDGE_OR_NET_NAME")
+
+    if [ -z "${PRESEED_URL:-}" ]; then
+        PRESEED_URL="${HOST_IP}/devstackubuntupreseed.cfg"
+        HTTP_SERVER_LOCATION="/opt/xensource/www"
+        if [ ! -e $HTTP_SERVER_LOCATION ]; then
+            HTTP_SERVER_LOCATION="/var/www/html"
+            mkdir -p $HTTP_SERVER_LOCATION
+        fi
+        cp -f $THIS_DIR/devstackubuntupreseed.cfg $HTTP_SERVER_LOCATION
+
+        sed \
+            -e "s,\(d-i mirror/http/hostname string\).*,\1 $UBUNTU_INST_HTTP_HOSTNAME,g" \
+            -e "s,\(d-i mirror/http/directory string\).*,\1 $UBUNTU_INST_HTTP_DIRECTORY,g" \
+            -e "s,\(d-i mirror/http/proxy string\).*,\1 $UBUNTU_INST_HTTP_PROXY,g" \
+            -i "${HTTP_SERVER_LOCATION}/devstackubuntupreseed.cfg"
+    fi
+
+    clone_template_as_vm "$TEMPLATE_TO_USE" "$GUEST_NAME"
+    set_vm_memory "$GUEST_NAME" "$OSDOMU_MEM_MB"
+    add_boot_disk "$GUEST_NAME" "$OSDOMU_VDI_GB"
+    append_kernel_cmdline "$GUEST_NAME" "$(\
+        print_essential_installer_args \
+            "$UBUNTU_INST_LOCALE" \
+            "$UBUNTU_INST_KEYBOARD" \
+            "$PRESEED_URL")"
+
+    if [ "$UBUNTU_INST_IP" != "dhcp" ]; then
+        append_kernel_cmdline "$GUEST_NAME" "$(\
+            print_installer_args_for_static_ip \
+                "$UBUNTU_INST_NAMESERVERS" \
+                "$UBUNTU_INST_IP" \
+                "$UBUNTU_INST_NETMASK" \
+                "$UBUNTU_INST_GATEWAY")"
+    fi
+
+    set_other_config_for_netinstall "$GUEST_NAME" \
+        "$UBUNTU_INST_HTTP_HOSTNAME" \
+        "$UBUNTU_INST_HTTP_DIRECTORY" \
+        "$UBUNTU_INST_RELEASE" \
+        "$UBUNTU_INST_ARCH"
+
+    if ! [ -z "$UBUNTU_INST_HTTP_PROXY" ]; then
+        set_install_proxy "$GUEST_NAME" "$UBUNTU_INST_HTTP_PROXY"
+    fi
+
+    add_interface "$GUEST_NAME" "$UBUNTU_INST_BRIDGE_OR_NET_NAME" "0"
+
+    set_halt_on_restart "$GUEST_NAME"
+
+    start_vm "$GUEST_NAME"
+
+    log_info << EOF
+Wait for install to finish
+
+Progress in-VM can be checked with vncviewer:
+vncviewer -via $(print_ip "$XENAPI_CONNECTION_URL") localhost:$(print_display "$GUEST_NAME")
+EOF
+    wait_for_vm_to_halt "$GUEST_NAME"
+
+    set_reboot_on_restart "$GUEST_NAME"
+fi
+
 echo "END"
 exit 0
 
@@ -115,7 +181,6 @@ EOF
     exit 1
 fi
 
-HOST_IP=$(xenapi_ip_on "$MGT_BRIDGE_OR_NET_NAME")
 
 # Set up ip forwarding, but skip on xcp-xapi
 if [ -a /etc/sysconfig/network ]; then

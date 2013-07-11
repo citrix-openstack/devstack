@@ -59,6 +59,8 @@ VM_NETMASK=${VM_NETMASK:-255.255.255.0}
 PUB_IP=${PUB_IP:-172.24.4.10}
 PUB_NETMASK=${PUB_NETMASK:-255.255.255.0}
 
+TEMPLATE_TO_USE="Ubuntu Lucid Lynx 10.04 (64-bit)"
+
 # Ubuntu install settings
 UBUNTU_INST_RELEASE="precise"
 UBUNTU_INST_TEMPLATE_NAME="Ubuntu 12.04 (64-bit) for DevStack"

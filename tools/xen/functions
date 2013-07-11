@@ -319,16 +319,35 @@ function wait_for_vm_to_halt() {
     set -x
 }
 
+function _set_reboot_action() {
+    local vm_name_label
+    local action
+
+    vm_name_label="$1"
+    action="$2"
+
+    local vm
+
+    vm=$(_vm_uuid "$vm_name_label")
+    xe vm-param-set actions-after-reboot=$action uuid=$vm
+}
+
 function set_reboot_on_restart() {
     local vm_name_label
 
     vm_name_label="$1"
 
-    local vm
-
-    vm=$(_vm_uuid "$vm_name_label")
-    xe vm-param-set actions-after-reboot=Restart uuid=$vm
+    _set_reboot_action "$vm_name_label" "Restart"
 }
+
+function set_halt_on_restart() {
+    local vm_name_label
+
+    vm_name_label="$1"
+
+    _set_reboot_action "$vm_name_label" "Destroy"
+}
+
 
 function uninstall_vm() {
     local vm_name_label
@@ -339,5 +358,163 @@ function uninstall_vm() {
 
     vm=$(_vm_uuid "$vm_name_label")
 
+    #TODO: vdis don't get destroyed
     xe vm-uninstall vm=$vm force=true
+}
+
+function snapshot_missing() {
+    local snapshot
+
+    snapshot="$1"
+
+    [ -z "$(xe vm-list is-a-snapshot=true name-label="$snapshot" --minimal)" ]
+}
+
+function clone_template_as_vm() {
+    local template_name_label
+    local vm_name_label
+
+    template_name_label="$1"
+    vm_name_label="$2"
+
+    local template
+    local vm
+
+    template=$(xe template-list name-label="$template_name_label" --minimal)
+    [ -n "$template" ]
+
+    vm=$(xe vm-clone uuid=$template new-name-label="$vm_name_label")
+    [ -n "$vm" ]
+
+    xe vm-param-set uuid=$vm name-description="$vm_name_label"
+    xe vm-param-set uuid=$vm is-a-template=false
+}
+
+function set_vm_memory() {
+    local vm_name_label
+    local memory
+
+    vm_name_label="$1"
+    memory="$2"
+
+    local vm
+
+    vm=$(_vm_uuid "$vm_name_label")
+
+    xe vm-memory-limits-set \
+        static-min=${memory}MiB \
+        static-max=${memory}MiB \
+        dynamic-min=${memory}MiB \
+        dynamic-max=${memory}MiB \
+        uuid=$vm
+}
+
+function add_boot_disk() {
+    local vm_name_label
+    local disk_size_gb
+
+    vm_name_label="$1"
+    disk_size_gb="$2"
+
+    local vm
+    local sr
+
+    vm=$(_vm_uuid "$vm_name_label")
+    sr=$(get_local_sr)
+
+    local vdi
+
+    vdi=$(xe vdi-create \
+        name-label="boot" \
+        sr-uuid=$sr \
+        type=system \
+        virtual-size="${disk_size_gb}GiB")
+
+    xe vbd-create vm-uuid=$vm vdi-uuid=$vdi device=0 bootable=true
+}
+
+function print_essential_installer_args() {
+    local ubuntu_inst_locale
+    local ubuntu_inst_keyboard
+    local preseed_url
+
+    ubuntu_inst_locale="$1"
+    ubuntu_inst_keyboard="$2"
+    preseed_url="$3"
+
+    echo -n "partman/default_filesystem=ext3 \
+console-setup/ask_detect=false locale=${ubuntu_inst_locale} \
+keyboard-configuration/layoutcode=${ubuntu_inst_keyboard} \
+netcfg/choose_interface=eth0 \
+netcfg/get_hostname=os netcfg/get_domain=os auto \
+url=${preseed_url}"
+
+}
+
+function print_installer_args_for_static_ip() {
+    local ubuntu_inst_nameservers
+    local ubuntu_inst_ip
+    local ubuntu_inst_netmask
+    local ubuntu_inst_gateway
+
+    ubuntu_inst_nameservers="$1"
+    ubuntu_inst_ip="$2"
+    ubuntu_inst_netmask="$3"
+    ubuntu_inst_gateway="$4"
+
+    echo -n "netcfg/disable_autoconfig=true \
+netcfg/get_nameservers=${ubuntu_inst_nameservers} \
+netcfg/get_ipaddress=${ubuntu_inst_ip} \
+netcfg/get_netmask=${ubuntu_inst_netmask} \
+netcfg/get_gateway=${ubuntu_inst_gateway} \
+netcfg/confirm_static=true"
+}
+
+function set_other_config_for_netinstall() {
+    local vm_name_label
+    local ubuntu_inst_http_hostname
+    local ubuntu_inst_http_directory
+    local ubuntu_inst_release
+    local ubuntu_inst_arch
+
+    vm_name_label="$1"
+    ubuntu_inst_http_hostname="$2"
+    ubuntu_inst_http_directory="$3"
+    ubuntu_inst_release="$4"
+    ubuntu_inst_arch="$5"
+
+    local vm
+
+    vm=$(_vm_uuid "$vm_name_label")
+
+    xe vm-param-set uuid=$vm \
+        other-config:install-methods=http \
+        other-config:install-repository="http://${ubuntu_inst_http_hostname}${ubuntu_inst_http_directory}" \
+        other-config:debian-release="$ubuntu_inst_release" \
+        other-config:install-arch="$ubuntu_inst_arch"
+}
+
+function set_install_proxy() {
+    local vm_name_label
+    local ubuntu_inst_http_proxy
+
+    vm_name_label="$1"
+    ubuntu_inst_http_proxy="$2"
+
+    local vm
+
+    vm=$(_vm_uuid "$vm_name_label")
+    xe vm-param-set uuid=$vm \
+        other-config:install-proxy="$ubuntu_inst_http_proxy"
+}
+
+function start_vm() {
+    local vm_name_label
+
+    vm_name_label="$1"
+
+    local vm
+
+    vm=$(_vm_uuid "$vm_name_label")
+    xe vm-start uuid=$vm
 }
