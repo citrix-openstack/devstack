@@ -139,7 +139,6 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 # and/or create VM from template
 #
 
-GUEST_NAME=${GUEST_NAME:-"DevStackOSDomU"}
 TNAME="devstack_template"
 SNAME_PREPARED="template_prepared"
 SNAME_FIRST_BOOT="before_first_boot"
