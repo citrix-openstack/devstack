@@ -255,7 +255,7 @@ function print_ip() {
     local xenapi_connection_url
 
     xenapi_connection_url="$1"
-    
+
     echo $xenapi_connection_url | tr -d -c '1234567890.'
 }
 
