@@ -10,6 +10,9 @@ set -o errexit
 set -o nounset
 set -o xtrace
 
+# xapi functions
+. $THIS_DIR/functions
+
 # Abort if localrc is not set
 if [ ! -e ../../localrc ]; then
     log_error << EOF
@@ -27,9 +30,6 @@ THIS_DIR=$(cd $(dirname "$0") && pwd)
 
 # Include onexit commands
 . $THIS_DIR/scripts/on_exit.sh
-
-# xapi functions
-. $THIS_DIR/functions
 
 #
 # Get Settings
