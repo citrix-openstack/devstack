@@ -367,7 +367,7 @@ function snapshot_missing() {
 
     snapshot="$1"
 
-    [ -z "$(xe vm-list is-a-snapshot=true name-label="$snapshot" --minimal)" ]
+    [ -z "$(xe snapshot-list name-label="$snapshot" --minimal)" ]
 }
 
 function clone_template_as_vm() {
