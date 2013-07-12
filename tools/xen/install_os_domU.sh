@@ -60,9 +60,9 @@ for uuid in `xe vdi-list | grep -1 Glance | grep uuid | sed "s/.*\: //g"`; do
     xe vdi-destroy uuid=$uuid
 done
 
-STEP_1_BEFORE_NETBOOT="$GUEST_NAME - STEP 1 - BEFORE_NETBOOT"
+SNAPSHOT_JEOS="$GUEST_NAME - JEOS"
 
-if snapshot_missing "$STEP_1_BEFORE_NETBOOT"; then
+if snapshot_missing "$SNAPSHOT_JEOS"; then
     HOST_IP=$(xenapi_ip_on "$MGT_BRIDGE_OR_NET_NAME")
 
     if [ -z "${PRESEED_URL:-}" ]; then
@@ -124,6 +124,8 @@ EOF
     wait_for_vm_to_halt "$GUEST_NAME"
 
     set_reboot_on_restart "$GUEST_NAME"
+
+    snapshot_vm "$GUEST_NAME" "$SNAPSHOT_JEOS"
 fi
 
 echo "END"

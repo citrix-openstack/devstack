@@ -518,3 +518,13 @@ function start_vm() {
     vm=$(_vm_uuid "$vm_name_label")
     xe vm-start uuid=$vm
 }
+
+function snapshot_vm() {
+    local vm_name_label
+    local snapshot_name
+
+    vm_name_label="$1"
+    snapshot_name="$2"
+
+    xe vm-snapshot vm="$vm_name_label" new-name-label="$snapshot_name"
+}
