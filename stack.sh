@@ -193,6 +193,9 @@ if [[ $EUID -eq 0 ]]; then
         useradd -g $STACK_USER -s /bin/bash -d $DEST -m $STACK_USER
     fi
 
+    # Give wider permissions to /opt/stack
+    chmod 0755 $DEST
+
     echo "Giving stack user passwordless sudo privileges"
     # UEC images ``/etc/sudoers`` does not have a ``#includedir``, add one
     grep -q "^#includedir.*/etc/sudoers.d" /etc/sudoers ||
