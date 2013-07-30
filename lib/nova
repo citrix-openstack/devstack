@@ -77,12 +77,34 @@ SPICE_DIR=$DEST/spice-html5
 
 # Set defaults according to the virt driver
 if [ "$VIRT_DRIVER" = 'xenserver' ]; then
-    PUBLIC_INTERFACE_DEFAULT=eth2
-    GUEST_INTERFACE_DEFAULT=eth1
-    # Allow ``build_domU.sh`` to specify the flat network bridge via kernel args
-    FLAT_NETWORK_BRIDGE_DEFAULT=$(sed -e 's/.* flat_network_bridge=\([[:alnum:]]*\).*$/\1/g' /proc/cmdline)
-    if is_service_enabled neutron; then
-        XEN_INTEGRATION_BRIDGE=$(sed -e 's/.* xen_integration_bridge=\([[:alnum:]]*\).*$/\1/g' /proc/cmdline)
+    if [ -z "$XENAPI_CONNECTION_URL" ]; then
+        for SOCKET in "/var/lib/xcp/xapi" "/var/xapi/xapi"; do
+            # Only accessible by root by default
+            if `sudo test -e $SOCKET`; then
+                # Make sure the XAPI socket is accessible to the stack user
+                TMP=$SOCKET
+                while [ ! -w $TMP ]; do
+                    sudo chmod a+wrx $TMP
+                    TMP=`dirname $TMP`
+                done
+                XENAPI_CONNECTION_URL="local"
+                XENAPI_USER=''
+                XENAPI_PASSWORD=''
+            fi
+        done
+    fi
+    if [ "$XENAPI_CONNECTION_URL" = 'local' ]; then
+	PUBLIC_INTERFACE_DEFAULT=br100
+	GUEST_INTERFACE_DEFAULT=eth0
+	FLAT_NETWORK_BRIDGE_DEFAULT=br100
+    else
+	PUBLIC_INTERFACE_DEFAULT=eth2
+	GUEST_INTERFACE_DEFAULT=eth1
+        # Allow ``build_domU.sh`` to specify the bridges via kernel args
+	FLAT_NETWORK_BRIDGE_DEFAULT=$(sed -e 's/.* flat_network_bridge=\([[:alnum:]]*\).*$/\1/g' /proc/cmdline)
+	if is_service_enabled neutron; then
+            XEN_INTEGRATION_BRIDGE=$(sed -e 's/.* xen_integration_bridge=\([[:alnum:]]*\).*$/\1/g' /proc/cmdline)
+	fi
     fi
 elif [ "$VIRT_DRIVER" = 'baremetal' ]; then
     NETWORK_MANAGER=${NETWORK_MANAGER:-FlatManager}

@@ -1027,9 +1027,27 @@ if is_service_enabled nova; then
     if [ "$VIRT_DRIVER" = 'xenserver' ]; then
         echo_summary "Using XenServer virtualization driver"
         if [ -z "$XENAPI_CONNECTION_URL" ]; then
+            for SOCKET in "/var/lib/xcp/xapi" "/var/xapi/xapi"; do
+                # Only accessible by root by default
+                if `sudo test -e $SOCKET`; then
+                    # Make sure the XAPI socket is accessible to the stack user
+                    TMP=$SOCKET
+                    while [ ! -w $TMP ]; do
+                        sudo chmod a+wrx $TMP
+                        TMP=`dirname $TMP`
+                    done
+                    XENAPI_CONNECTION_URL="local"
+                    XENAPI_USER=''
+                    XENAPI_PASSWORD=''
+                fi
+            done
+        fi
+        if [ -z "$XENAPI_CONNECTION_URL" ]; then
             die $LINENO "XENAPI_CONNECTION_URL is not specified"
         fi
-        read_password XENAPI_PASSWORD "ENTER A PASSWORD TO USE FOR XEN."
+        if [ "$XENAPI_CONNECTION_URL" != "local" ]; then
+            read_password XENAPI_PASSWORD "ENTER A PASSWORD TO USE FOR XEN."
+        fi
         iniset $NOVA_CONF DEFAULT compute_driver "xenapi.XenAPIDriver"
         iniset $NOVA_CONF DEFAULT xenapi_connection_url "$XENAPI_CONNECTION_URL"
         iniset $NOVA_CONF DEFAULT xenapi_connection_username "$XENAPI_USER"
