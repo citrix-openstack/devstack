@@ -29,6 +29,9 @@ cd $TOP_DIR
 # Import common functions
 source $TOP_DIR/functions
 
+# Load stackrc to initialise variables like VIRT_DRIVER used below
+source $TOP_DIR/stackrc
+
 FILES=$TOP_DIR/files
 
 
