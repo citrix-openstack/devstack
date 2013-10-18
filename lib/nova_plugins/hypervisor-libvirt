@@ -127,6 +127,9 @@ function install_nova_hypervisor() {
         install_package libvirt
         install_package libvirt-python
     fi
+    if is_fedora; then
+        install_package python-libguestfs
+    fi
 
     # Install and configure **LXC** if specified.  LXC is another approach to
     # splitting a system into many smaller parts.  LXC uses cgroups and chroot
