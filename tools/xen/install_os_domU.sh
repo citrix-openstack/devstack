@@ -65,20 +65,14 @@ EOF
     exit 1
 fi
 
+
 # Install plugins
 
 ## Nova plugins
 NOVA_ZIPBALL_URL=${NOVA_ZIPBALL_URL:-$(zip_snapshot_location $NOVA_REPO $NOVA_BRANCH)}
 EXTRACTED_NOVA=$(extract_remote_zipball "$NOVA_ZIPBALL_URL")
-install_xapi_plugins_from "$EXTRACTED_NOVA"
 
-LOGROT_SCRIPT=$(find "$EXTRACTED_NOVA" -name "rotate_xen_guest_logs.sh" -print)
-if [ -n "$LOGROT_SCRIPT" ]; then
-    mkdir -p "/var/log/xen/guest"
-    cp "$LOGROT_SCRIPT" /root/consolelogrotate
-    chmod +x /root/consolelogrotate
-    echo "* * * * * /root/consolelogrotate" | crontab
-fi
+prep_dom0_for_nova $EXTRACTED_NOVA
 
 rm -rf "$EXTRACTED_NOVA"
 
@@ -89,9 +83,6 @@ if [[ "$ENABLED_SERVICES" =~ "q-agt" && "$Q_PLUGIN" = "openvswitch" ]]; then
     install_xapi_plugins_from "$EXTRACTED_NEUTRON"
     rm -rf "$EXTRACTED_NEUTRON"
 fi
-
-create_directory_for_kernels
-create_directory_for_images
 
 #
 # Configure Networking

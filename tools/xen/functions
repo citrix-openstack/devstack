@@ -64,8 +64,8 @@ function install_xapi_plugins_from {
 
     EXTRACTED_PLUGINS_DIR=$(find_xapi_plugins_dir $EXTRACTED_FILES)
 
-    cp -pr $EXTRACTED_PLUGINS_DIR/* $XAPI_PLUGIN_DIR
-    chmod a+x ${XAPI_PLUGIN_DIR}*
+    sudo cp -pr $EXTRACTED_PLUGINS_DIR/* $XAPI_PLUGIN_DIR
+    sudo chmod a+x ${XAPI_PLUGIN_DIR}*
 }
 
 function get_local_sr {
@@ -318,4 +318,21 @@ function max_vcpus() {
 
     xe vm-param-set uuid=$vm VCPUs-max=$cpu_count
     xe vm-param-set uuid=$vm VCPUs-at-startup=$cpu_count
+}
+
+function prep_dom0_for_nova
+{
+    NOVA_DIR="$1"
+    install_xapi_plugins_from "$NOVA_DIR"
+
+    LOGROT_SCRIPT=$(find "$NOVA_DIR" -name "rotate_xen_guest_logs.sh" -print)
+    if [ -n "$LOGROT_SCRIPT" ]; then
+	mkdir -p "/var/log/xen/guest"
+	cp "$LOGROT_SCRIPT" /root/consolelogrotate
+	chmod +x /root/consolelogrotate
+	echo "* * * * * /root/consolelogrotate" | crontab
+    fi
+
+    create_directory_for_kernels
+    create_directory_for_images
 }
