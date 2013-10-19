@@ -25,9 +25,9 @@ set +o xtrace
 PUBLIC_INTERFACE_DEFAULT=eth2
 GUEST_INTERFACE_DEFAULT=eth1
 # Allow ``build_domU.sh`` to specify the flat network bridge via kernel args
-FLAT_NETWORK_BRIDGE_DEFAULT=$(sed -e 's/.* flat_network_bridge=\([[:alnum:]]*\).*$/\1/g' /proc/cmdline)
+FLAT_NETWORK_BRIDGE_DEFAULT=$(sed -ne 's/.* flat_network_bridge=\([[:alnum:]]*\).*$/\1/gp' /proc/cmdline)
 if is_service_enabled neutron; then
-    XEN_INTEGRATION_BRIDGE=$(sed -e 's/.* xen_integration_bridge=\([[:alnum:]]*\).*$/\1/g' /proc/cmdline)
+    XEN_INTEGRATION_BRIDGE=$(sed -ne 's/.* xen_integration_bridge=\([[:alnum:]]*\).*$/\1/gp' /proc/cmdline)
 fi
 
 VNCSERVER_PROXYCLIENT_ADDRESS=${VNCSERVER_PROXYCLIENT_ADDRESS=169.254.0.1}
