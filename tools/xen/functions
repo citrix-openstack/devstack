@@ -330,7 +330,7 @@ function prep_dom0_for_nova
 	mkdir -p "/var/log/xen/guest"
 	cp "$LOGROT_SCRIPT" /root/consolelogrotate
 	chmod +x /root/consolelogrotate
-	echo "* * * * * /root/consolelogrotate" | crontab
+	echo "*/10 * * * * /root/consolelogrotate" | sudo crontab
     fi
 
     create_directory_for_kernels
